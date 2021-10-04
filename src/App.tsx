@@ -15,7 +15,7 @@ const getAbiByName = (name: string) => abi.find(e => e.name === name)
 // Interface
 interface IUserInfo {
   amount: number
-  rewardDept: number
+  rewardDebt: number
 }
 
 // Get user staked amount
