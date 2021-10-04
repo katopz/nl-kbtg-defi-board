@@ -15,7 +15,7 @@ const getAbiByName = (name: string) => abi.find(e => e.name === name)
 // Interface
 interface IUserInfo {
   amount: number
-  rewardDept: number
+  rewardDebt: number
 }
 
 // Get user staked amount
@@ -35,12 +35,12 @@ const getUserInfos = async (account: string, masterChefAddress: string, poolId: 
     chain,
   })
 
-  const { amount, rewardDebt } = userInfos.output[0].output
+  const { amount, rewardDebt } = userInfos.output[0].output as IUserInfo
 
   return {
     amount: new BigNumber(amount).toNumber() / Math.pow(10, 18),
     rewardDebt: new BigNumber(rewardDebt).toNumber() / Math.pow(10, 18),
-  } as unknown as IUserInfo
+  }
 }
 
 function App() {
