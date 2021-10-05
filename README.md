@@ -12,7 +12,7 @@ yarn start
 ```
 
 ### TODO
-- [ ] Add pending reward.
+- [x] Add pending `CAKE` reward.
 - [ ] Add `LP token` as `token0`, `token1`.
 - [ ] Add user wallet token.
 - [ ] Add price as `USD`.

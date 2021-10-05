@@ -16,6 +16,7 @@ const getAbiByName = (name: string) => abi.find(e => e.name === name)
 interface IUserInfo {
   amount: number
   rewardDebt: number
+  pendingCake: number
 }
 
 // Get user staked amount
@@ -25,9 +26,12 @@ const getUserInfos = async (account: string, masterChefAddress: string, poolId: 
     params: [poolId, account],
   }]
 
+  // ABI
   const userInfoABI = getAbiByName('userInfo')
+  const pendingCakeABI = getAbiByName('pendingCake')
 
-  const userInfos = await api.abi.multiCall({
+  // Calls
+  const userInfos = api.abi.multiCall({
     // @ts-ignore
     block,
     calls,
@@ -35,12 +39,24 @@ const getUserInfos = async (account: string, masterChefAddress: string, poolId: 
     chain,
   })
 
-  const { amount, rewardDebt } = userInfos.output[0].output as IUserInfo
+  const pendingCakes = api.abi.multiCall({
+    // @ts-ignore
+    block,
+    calls,
+    abi: pendingCakeABI,
+    chain,
+  })
+
+  const [userInfosOutput, pendingCakeOutput] = await Promise.all([userInfos, pendingCakes])
+
+  const { amount, rewardDebt } = userInfosOutput.output[0].output
+  const pendingCakeAmount = pendingCakeOutput.output[0].output
 
   return {
     amount: new BigNumber(amount).toNumber() / Math.pow(10, 18),
     rewardDebt: new BigNumber(rewardDebt).toNumber() / Math.pow(10, 18),
-  }
+    pendingCake: new BigNumber(pendingCakeAmount).toNumber() / Math.pow(10, 18),
+  } as IUserInfo
 }
 
 function App() {
@@ -65,8 +81,10 @@ function App() {
   // Render
   return (
     <div>
-      <p>User Address: {account}</p>
-      <p>User CAKE-LP Balance: {userInfo?.amount || 0}</p>
+      <h4>User</h4>
+      <p>Address: {account}</p>
+      <p>CAKE-LP Balance: {userInfo?.amount || 0}</p>
+      <p>Pending CAKE reward: {userInfo?.pendingCake || 0}</p>
     </div>
   )
 }
